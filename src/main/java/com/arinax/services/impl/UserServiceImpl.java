@@ -107,7 +107,8 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(this.passwordEncoder.encode(user.getPassword()));
 
 		// roles
-		Role role = this.roleRepo.findById(AppConstants.NORMAL_USER).get();
+		Role role = this.roleRepo.findById(AppConstants.NORMAL_USER)
+				.orElseThrow(() -> new RuntimeException("Role not found with id: " + AppConstants.NORMAL_USER));
 
 		user.getRoles().add(role);
 
@@ -117,3 +118,4 @@ public class UserServiceImpl implements UserService {
 	}
 
 }
+
