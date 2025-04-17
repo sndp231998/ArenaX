@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.arinax.entities.GameMode;
 import com.arinax.exceptions.ResourceNotFoundException;
@@ -14,6 +15,7 @@ import com.arinax.repositories.GameModeRepo;
 
 import com.arinax.services.GameModeService;
 
+@Service
 public class GameModeServiceImpl implements GameModeService{
 
 	@Autowired

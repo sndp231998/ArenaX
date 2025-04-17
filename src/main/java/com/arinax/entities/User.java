@@ -44,7 +44,11 @@ public class User implements UserDetails {
 	private String email;
 
 	private String password;
+	
+	private String puId;
+	private String fuId;
 
+	private double balance;
 
 	//@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	//private List<Post> posts = new ArrayList<>();

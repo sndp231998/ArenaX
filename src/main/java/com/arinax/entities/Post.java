@@ -1,5 +1,6 @@
 package com.arinax.entities;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,18 +39,26 @@ public class Post {
 
 	private String imageName;
 
-	private Date addedDate;
+	@Column(name = "created_at", nullable = false)
+	private LocalDateTime addedDate;
 
+	@Column(name = "event_start", nullable = true)
+	private LocalDateTime startTime;
+	
+	private double entryFee;
+	
 	@ManyToOne
 	@JoinColumn(name = "game_id")
 	private Game game;
 
+	    @ManyToOne
+	    @JoinColumn(name = "mode_id", nullable = false)
+	    private GameMode gameMode;
+	 
 	@ManyToOne
 	private User user;
 	
 	
-	  @ManyToOne
-	    @JoinColumn(name = "mode_id", nullable = false)
-	    private GameMode gameMode;
+	 
 
 }

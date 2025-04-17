@@ -1,5 +1,6 @@
 package com.arinax.services.impl;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import com.arinax.entities.Game;
 import com.arinax.entities.GameMode;
@@ -24,7 +26,7 @@ import com.arinax.repositories.PostRepo;
 import com.arinax.repositories.UserRepo;
 import com.arinax.services.PostService;
 
-
+@Service
 public class PostServiceImpl implements PostService {
 
     @Autowired
@@ -58,7 +60,7 @@ public class PostServiceImpl implements PostService {
         Post post = this.modelMapper.map(postDto, Post.class);
         post.setImageName("default.png");
         
-        post.setAddedDate(new Date());
+        post.setAddedDate(LocalDateTime.now());
         post.setUser(user);
         post.setGame(game);
         post.setGameMode(mode);

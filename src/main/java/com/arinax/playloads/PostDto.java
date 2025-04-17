@@ -1,7 +1,9 @@
 package com.arinax.playloads;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
+import jakarta.persistence.Column;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,12 +20,14 @@ public class PostDto {
 	
 	private String imageName;
 	
-	private Date addedDate;	
+	private LocalDateTime addedDate;
+
+	private LocalDateTime startTime;
 	
 	private GameDto game;
 
 	private UserDto user;
-	
+
 	private GameModeDto gameMode;
 	
 	//private Set<CommentDto> comments=new HashSet<>();
