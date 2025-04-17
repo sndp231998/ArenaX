@@ -10,15 +10,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CategoryDto {
+public class GameDto {
 
-	private Integer categoryId;
+	private Integer gameId;
 	@NotBlank
-	@Size(min = 4,message = "Min size of category title is 4")
-	private String categoryTitle;
+	@Size(min = 4,message = "Min size of game title is 4")
+	private String gameTitle;
 
 	@NotBlank
-	@Size(min = 10, message = "min size of cateogry desc is 10")
-	private String categoryDescription;
+	@Size(min = 10, message = "min size of game desc is 10")
+	private String gameDescription;
 
 }

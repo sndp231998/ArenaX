@@ -10,7 +10,7 @@ import com.arinax.playloads.PostResponse;
 public interface PostService {
 	//create 
 
-		PostDto createPost(PostDto postDto,Integer userId,Integer categoryId);
+		PostDto createPost(PostDto postDto,Integer userId,Integer gameId, Integer modeId);
 
 		//update 
 
@@ -30,12 +30,14 @@ public interface PostService {
 		
 		//get all posts by category
 		
-		List<PostDto> getPostsByCategory(Integer categoryId);
+		
 		
 		//get all posts by user
 		List<PostDto> getPostsByUser(Integer userId);
 		
 		//search posts
 		List<PostDto> searchPosts(String keyword);
+
+		List<PostDto> getPostsByGame(Integer gameId);
 
 	}

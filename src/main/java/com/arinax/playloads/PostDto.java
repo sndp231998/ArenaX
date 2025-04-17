@@ -20,9 +20,11 @@ public class PostDto {
 	
 	private Date addedDate;	
 	
-	private CategoryDto category;
+	private GameDto game;
 
 	private UserDto user;
+	
+	private GameModeDto gameMode;
 	
 	//private Set<CommentDto> comments=new HashSet<>();
 

@@ -41,14 +41,15 @@ public class Post {
 	private Date addedDate;
 
 	@ManyToOne
-	@JoinColumn(name = "category_id")
-	private Category category;
+	@JoinColumn(name = "game_id")
+	private Game game;
 
 	@ManyToOne
 	private User user;
 	
 	
-	//@OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
-	//private Set<Comment> comments=new HashSet<>();
+	  @ManyToOne
+	    @JoinColumn(name = "mode_id", nullable = false)
+	    private GameMode gameMode;
 
 }

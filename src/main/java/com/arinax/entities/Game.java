@@ -18,23 +18,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="categories")
+@Table(name="games")
 @NoArgsConstructor
 @Data
-public class Category {
+public class Game {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer categoryId;
+	private Integer gameId;
 	
-	@Column(name="title",length = 100,nullable = false)
-	private String categoryTitle;
+	@Column(name="gameTitle",length = 100,nullable = false)
+	private String gameTitle;
 	
 	@Column(name="description")
-	private String categoryDescription;
+	private String gameDescription;
 	
 	
-//	@OneToMany(mappedBy = "category",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-//	private List<Post> posts=new ArrayList<>();
+	@OneToMany(mappedBy = "game",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+	private List<Post> posts=new ArrayList<>();
 	
 }

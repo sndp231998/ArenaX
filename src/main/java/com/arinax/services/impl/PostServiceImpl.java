@@ -11,13 +11,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import com.arinax.entities.Category;
+import com.arinax.entities.Game;
+import com.arinax.entities.GameMode;
 import com.arinax.entities.Post;
 import com.arinax.entities.User;
 import com.arinax.exceptions.ResourceNotFoundException;
 import com.arinax.playloads.PostDto;
 import com.arinax.playloads.PostResponse;
-import com.arinax.repositories.CategoryRepo;
+import com.arinax.repositories.GameModeRepo;
+import com.arinax.repositories.GameRepo;
 import com.arinax.repositories.PostRepo;
 import com.arinax.repositories.UserRepo;
 import com.arinax.services.PostService;
@@ -35,24 +37,31 @@ public class PostServiceImpl implements PostService {
     private UserRepo userRepo;
 
     @Autowired
-    private CategoryRepo categoryRepo;
+    private GameRepo gameRepo;
+    
+    @Autowired
+    private GameModeRepo modeRepo;
 
     @Override
-    public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId) {
+    public PostDto createPost(PostDto postDto, Integer userId, Integer gameId,Integer modeId) {
 
         User user = this.userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User ", "User id", userId));
 
-        Category category = this.categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "category id ", categoryId));
+        Game game = this.gameRepo.findById(gameId)
+                .orElseThrow(() -> new ResourceNotFoundException("Game", "game id ", gameId));
+        
+        GameMode mode = this.modeRepo.findById(modeId)
+                .orElseThrow(() -> new ResourceNotFoundException("GameMode", "mode id ", modeId));
+        
 
         Post post = this.modelMapper.map(postDto, Post.class);
         post.setImageName("default.png");
         
         post.setAddedDate(new Date());
         post.setUser(user);
-        post.setCategory(category);
-
+        post.setGame(game);
+        post.setGameMode(mode);
         Post newPost = this.postRepo.save(post);
 
         return this.modelMapper.map(newPost, PostDto.class);
@@ -64,14 +73,19 @@ public class PostServiceImpl implements PostService {
         Post post = this.postRepo.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post ", "post id", postId));
 
-        Category category = this.categoryRepo.findById(postDto.getCategory().getCategoryId()).get();
+        Game game = this.gameRepo.findById(postDto.getGame().getGameId())
+        	    .orElseThrow(() -> new ResourceNotFoundException("Game", "game id", postDto.getGame().getGameId()));
+
+        	GameMode mode = this.modeRepo.findById(postDto.getGameMode().getModeId())
+        	    .orElseThrow(() -> new ResourceNotFoundException("GameMode", "mode id", postDto.getGameMode().getModeId()));
+
 
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
         post.setImageName(postDto.getImageName());
-        post.setCategory(category);
-
-
+        post.setGame(game);
+        post.setGameMode(mode);
+     
         Post updatedPost = this.postRepo.save(post);
         return this.modelMapper.map(updatedPost, PostDto.class);
     }
@@ -121,11 +135,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getPostsByCategory(Integer categoryId) {
+    public List<PostDto> getPostsByGame(Integer gameId) {
 
-        Category cat = this.categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "category id", categoryId));
-        List<Post> posts = this.postRepo.findByCategory(cat);
+        Game cat = this.gameRepo.findById(gameId)
+                .orElseThrow(() -> new ResourceNotFoundException("Game", "game id", gameId));
+        List<Post> posts = this.postRepo.findByGame(cat);
 
         List<PostDto> postDtos = posts.stream().map((post) -> this.modelMapper.map(post, PostDto.class))
                 .collect(Collectors.toList());
