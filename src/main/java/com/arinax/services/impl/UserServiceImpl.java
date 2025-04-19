@@ -1,5 +1,6 @@
 package com.arinax.services.impl;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,7 @@ import com.arinax.exceptions.ResourceNotFoundException;
 import com.arinax.playloads.UserDto;
 import com.arinax.repositories.RoleRepo;
 import com.arinax.repositories.UserRepo;
+import com.arinax.services.NotificationService;
 import com.arinax.services.UserService;
 
 
@@ -32,6 +34,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private RoleRepo roleRepo;
+	
+	@Autowired
+	private NotificationService notificationService;
 
 	@Override
 	public UserDto createUser(UserDto userDto) {
@@ -42,19 +47,38 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto updateUser(UserDto userDto, Integer userId) {
+	    User user = this.userRepo.findById(userId)
+	            .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
 
-		User user = this.userRepo.findById(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("User", " Id ", userId));
+	    user.setName(userDto.getName());
+	    user.setEmail(userDto.getEmail());
+	    user.setFuId(userDto.getFuId());
+	    user.setPuId(userDto.getPuId());
 
-		user.setName(userDto.getName());
-		user.setEmail(userDto.getEmail());
-		user.setPassword(userDto.getPassword());
-	
+	    // Encode password before update
+	    if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+	        user.setPassword(this.passwordEncoder.encode(userDto.getPassword()));
+	    }
 
-		User updatedUser = this.userRepo.save(user);
-		UserDto userDto1 = this.userToDto(updatedUser);
-		return userDto1;
+	    User updatedUser = this.userRepo.save(user);
+	    return this.userToDto(updatedUser);
 	}
+
+	
+	
+	public UserDto BalanceUpdate(UserDto userDto, Integer userId) {
+	    User user = userRepo.findById(userId)
+	            .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+
+	    double incomingBalance = userDto.getBalance();
+	    if (incomingBalance == 0) return userToDto(user);
+
+	    user.setBalance(user.getBalance() + incomingBalance);
+	    return userToDto(userRepo.save(user));
+	}
+
+		
+	
 
 	@Override
 	public UserDto getUserById(Integer userId) {
@@ -84,12 +108,6 @@ public class UserServiceImpl implements UserService {
 
 	public User dtoToUser(UserDto userDto) {
 		User user = this.modelMapper.map(userDto, User.class);
-
-		// user.setId(userDto.getId());
-		// user.setName(userDto.getName());
-		// user.setEmail(userDto.getEmail());
-		// user.setAbout(userDto.getAbout());
-		// user.setPassword(userDto.getPassword());
 		return user;
 	}
 
@@ -110,10 +128,22 @@ public class UserServiceImpl implements UserService {
 		Role role = this.roleRepo.findById(AppConstants.NORMAL_USER)
 				.orElseThrow(() -> new RuntimeException("Role not found with id: " + AppConstants.NORMAL_USER));
 
-		user.getRoles().add(role);
+		user.setRoles(new HashSet<>());          // initialize
+		user.getRoles().add(role);               // one role add (NORMAL_USER)
+
+		
+		//for access multi role
+//		for (Role r : user.getRoles()) {
+//		    System.out.println("Role: " + r.getName());
+//		}
 
 		User newUser = this.userRepo.save(user);
+		String welcomeMessage = String.format("Welcome, %s! We're excited to have you on our ArinaX. enjoy the journey ahead! "
+        		+ "Thank you for choosing us, Arinax", user.getName());
+       // sendmsg.sendMessage(user.getMobileNo(), welcomeMessage); // Assuming notificationService sends SMS
 
+		
+		 notificationService.createNotification(newUser.getId(), welcomeMessage);
 		return this.modelMapper.map(newUser, UserDto.class);
 	}
 

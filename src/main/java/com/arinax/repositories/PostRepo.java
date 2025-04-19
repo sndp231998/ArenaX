@@ -1,5 +1,8 @@
 package com.arinax.repositories;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,6 +22,10 @@ public interface PostRepo extends JpaRepository<Post, Integer> {
 	
 	@Query("select p from Post p where p.title like :key")
 	List<Post> searchByTitle(@Param("key") String title);
-	
+	Page<Post> findByStatus(Post.PostStatus status, Pageable pageable);
+
+	Page<Post> findByStatusNot(Post.PostStatus status, Pageable pageable);
+
+
 
 }

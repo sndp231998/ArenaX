@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.arinax.config.AppConstants;
+import com.arinax.entities.Post;
 import com.arinax.playloads.ApiResponse;
 import com.arinax.playloads.PostDto;
 import com.arinax.playloads.PostResponse;
@@ -86,6 +87,22 @@ public class PostController {
 		return new ResponseEntity<PostResponse>(postResponse, HttpStatus.OK);
 	}
 
+	// ADMIN: Filter by Status (PENDING / REJECTED / APPROVED)
+	@GetMapping("/posts/status/{status}")
+	public ResponseEntity<PostResponse> getPostsByStatus(
+	        @PathVariable("status") String statusStr,
+	        @RequestParam(value = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+	        @RequestParam(value = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+	        @RequestParam(value = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
+	        @RequestParam(value = "sortDir", defaultValue = AppConstants.SORT_DIR, required = false) String sortDir) {
+
+	    Post.PostStatus status = Post.PostStatus.valueOf(statusStr.toUpperCase());
+	    PostResponse response = postService.getPostsByStatus(status, pageNumber, pageSize, sortBy, sortDir);
+	    return ResponseEntity.ok(response);
+	}
+
+	
+	
 	// get post details by id
 
 	@GetMapping("/posts/{postId}")
@@ -96,6 +113,8 @@ public class PostController {
 
 	}
 
+	
+	
 	// delete post
 	@DeleteMapping("/posts/{postId}")
 	public ApiResponse deletePost(@PathVariable Integer postId) {
@@ -148,5 +167,15 @@ public class PostController {
         StreamUtils.copy(resource,response.getOutputStream())   ;
 
     }
-
+    @PutMapping("/{postId}/reject")
+    public ResponseEntity<PostDto> rejectPost(@PathVariable Integer postId) {
+        PostDto rejectedRequest = postService.rejectPost(postId);
+        		
+        return ResponseEntity.ok(rejectedRequest);
+    }
+    @PutMapping("/{postId}/approved")
+    public ResponseEntity<PostDto> approvedPost(@PathVariable Integer postId) {
+        PostDto approvedRequest = postService.approvePost(postId); 		
+        return ResponseEntity.ok(approvedRequest);
+    }
 }

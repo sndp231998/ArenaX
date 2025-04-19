@@ -2,6 +2,7 @@ package com.arinax.services;
 
 import java.util.List;
 
+import com.arinax.entities.Post.PostStatus;
 import com.arinax.playloads.PostDto;
 import com.arinax.playloads.PostResponse;
 
@@ -39,5 +40,14 @@ public interface PostService {
 		List<PostDto> searchPosts(String keyword);
 
 		List<PostDto> getPostsByGame(Integer gameId);
+
+		PostDto approvePost(Integer postId);
+
+		PostDto rejectPost(Integer postId);
+
+		//PostResponse getUnapprovedPosts(Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
+
+		PostResponse getPostsByStatus(PostStatus status, Integer pageNumber, Integer pageSize, String sortBy,
+				String sortDir);
 
 	}
