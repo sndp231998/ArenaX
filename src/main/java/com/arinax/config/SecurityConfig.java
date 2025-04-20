@@ -42,7 +42,8 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/webjars/**"
+            "/webjars/**",
+            "/api/v1/auth/request-otp"
     };
 
     @Autowired
@@ -60,6 +61,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(PUBLIC_URLS).permitAll()
                     .requestMatchers(HttpMethod.GET).permitAll()
+                    
                     .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))

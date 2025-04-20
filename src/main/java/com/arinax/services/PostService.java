@@ -1,5 +1,6 @@
 package com.arinax.services;
 
+import java.security.Principal;
 import java.util.List;
 
 import com.arinax.entities.Post.PostStatus;
@@ -15,7 +16,7 @@ public interface PostService {
 
 		//update 
 
-		PostDto updatePost(PostDto postDto, Integer postId);
+		PostDto updatePost(PostDto postDto, Integer postId, Principal principal);
 
 		// delete
 
@@ -49,5 +50,7 @@ public interface PostService {
 
 		PostResponse getPostsByStatus(PostStatus status, Integer pageNumber, Integer pageSize, String sortBy,
 				String sortDir);
+
+		
 
 	}

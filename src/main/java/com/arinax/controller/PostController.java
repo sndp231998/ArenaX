@@ -2,6 +2,7 @@ package com.arinax.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,9 +126,13 @@ public class PostController {
 	// update post
 
 	@PutMapping("/posts/{postId}")
-	public ResponseEntity<PostDto> updatePost(@RequestBody PostDto postDto, @PathVariable Integer postId) {
+	public ResponseEntity<PostDto> updatePost(@RequestBody PostDto postDto, 
+			
+			@PathVariable Integer postId,
+			 Principal principal
+			) {
 
-		PostDto updatePost = this.postService.updatePost(postDto, postId);
+		PostDto updatePost = this.postService.updatePost(postDto, postId,principal);
 		return new ResponseEntity<PostDto>(updatePost, HttpStatus.OK);
 
 	}
@@ -140,19 +145,19 @@ public class PostController {
 	}
 
 	// post image upload
-
-	@PostMapping("/post/image/upload/{postId}")
-	public ResponseEntity<PostDto> uploadPostImage(@RequestParam("image") MultipartFile image,
-			@PathVariable Integer postId) throws IOException {
-
-		PostDto postDto = this.postService.getPostById(postId);
-		
-		String fileName = this.fileService.uploadImage(path, image);
-		postDto.setImageName(fileName);
-		PostDto updatePost = this.postService.updatePost(postDto, postId);
-		return new ResponseEntity<PostDto>(updatePost, HttpStatus.OK);
-
-	}
+//
+//	@PostMapping("/post/image/upload/{postId}")
+//	public ResponseEntity<PostDto> uploadPostImage(@RequestParam("image") MultipartFile image,
+//			@PathVariable Integer postId) throws IOException {
+//
+//		PostDto postDto = this.postService.getPostById(postId);
+//		
+//		String fileName = this.fileService.uploadImage(path, image);
+//		postDto.setImageName(fileName);
+//		PostDto updatePost = this.postService.updatePost(postDto, postId);
+//		return new ResponseEntity<PostDto>(updatePost, HttpStatus.OK);
+//
+//	}
 	
 
     //method to serve files

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.arinax.entities.User;
@@ -24,9 +25,11 @@ import com.arinax.exceptions.ApiException;
 import com.arinax.playloads.JwtAuthRequest;
 import com.arinax.playloads.JwtAuthResponse;
 import com.arinax.playloads.UserDto;
+import com.arinax.playloads.VerificationDto;
 import com.arinax.repositories.UserRepo;
 import com.arinax.security.JwtTokenHelper;
 import com.arinax.services.UserService;
+import com.arinax.services.impl.VerificationService;
 
 import jakarta.validation.Valid;
 
@@ -34,6 +37,9 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/v1/auth/")
 public class AuthController {
+
+	@Autowired
+    private VerificationService verificationService;
 
 	@Autowired
 	private JwtTokenHelper jwtTokenHelper;
@@ -46,6 +52,15 @@ public class AuthController {
 
 	@Autowired
 	private UserService userService;
+	
+	@PostMapping("/request-otp")
+	public String requestOtp(@RequestBody VerificationDto verificationDto) {
+	    String email = verificationDto.getEmail(); // dto बाट email निकाल्ने
+	    verificationService.getEmail(email);
+	    return "OTP sent to your email";
+	}
+
+
 
 	@PostMapping("/login")
 	public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest request) throws Exception {
@@ -95,4 +110,7 @@ public class AuthController {
 		return new ResponseEntity<UserDto>(this.mapper.map(user, UserDto.class), HttpStatus.OK);
 	}
 
-}
+	 
+	   }
+
+

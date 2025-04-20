@@ -1,5 +1,6 @@
 package com.arinax.services.impl;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -108,42 +109,62 @@ public class PostServiceImpl implements PostService {
         return this.modelMapper.map(newPost, PostDto.class);
     }
     @Override
-    public PostDto updatePost(PostDto postDto, Integer postId) {
+    public PostDto updatePost(PostDto postDto, Integer postId,Principal principal) {
 
         Post post = this.postRepo.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post ", "post id", postId));
-        
-       
+                .orElseThrow(() -> new ResourceNotFoundException("Post", "post id", postId));
 
-        if (post.getStatus() != Post.PostStatus.PENDING ) {
-            throw new ApiException("Cannot update");
+        Role adminRole = roleRepo.findById(AppConstants.ADMIN_USER)
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "Role Id", AppConstants.ADMIN_USER));
+        
+        List<User> allAdmins = userRepo.findAllByRoleName(adminRole.getName());
+
+        String username=  principal.getName();
+        User user = this.userRepo.findByEmail(username)
+                .orElseThrow(() -> new ResourceNotFoundException(User.class, "email", username));
+
+        
+
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getName().equals(adminRole.getName()));
+
+        if (!isAdmin) {
+            // Normal user only allowed if post is PENDING or REJECTED//pending ra reject ma xina vane rokxa
+            if (!(post.getStatus() == Post.PostStatus.PENDING || post.getStatus() == Post.PostStatus.REJECTED)) {
+                throw new ApiException("You can only edit posts that are Pending or Rejected.");
+            }
         }
-        
+
         Game game = this.gameRepo.findById(postDto.getGame().getGameId())
-        	    .orElseThrow(() -> new ResourceNotFoundException("Game", "game id", postDto.getGame().getGameId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Game", "game id", postDto.getGame().getGameId()));
 
-        	GameMode mode = this.modeRepo.findById(postDto.getGameMode().getModeId())
-        	    .orElseThrow(() -> new ResourceNotFoundException("GameMode", "mode id", postDto.getGameMode().getModeId()));
-        	Role adminRole = roleRepo.findById(AppConstants.ADMIN_USER)
-                    .orElseThrow(() -> new ResourceNotFoundException("Role", "Role Id", AppConstants.ADMIN_USER));
-
-            List<User> allAdmins = userRepo.findAllByRoleName(adminRole.getName());
-
-
+        GameMode mode = this.modeRepo.findById(postDto.getGameMode().getModeId())
+                .orElseThrow(() -> new ResourceNotFoundException("GameMode", "mode id", postDto.getGameMode().getModeId()));
+        
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
-        post.setImageName(postDto.getImageName());
+       // post.setImageName(postDto.getImageName());
         post.setGame(game);
         post.setGameMode(mode);
-        post.setStatus(Post.PostStatus.PENDING);
-     // Optional: Notify admin after update
-        for (User admin : allAdmins) {
-            notificationService.createNotification(admin.getId(), "Post updated. Please review again.");
-        }
 
+        if (isAdmin) {
+            post.setStatus(Post.PostStatus.APPROVED);
+            // Admin updated the post => confirm notification
+            notificationService.createNotification(user.getId(), "Your post has been updated and approved successfully.");
+        } else {
+            post.setStatus(Post.PostStatus.PENDING);
+            // Notify normal user
+            notificationService.createNotification(user.getId(), "Your post has been updated and is under review.");
+            
+            // Notify all admins
+            for (User admin : allAdmins) {
+                notificationService.createNotification(admin.getId(), "A post has been updated by a user and needs review.");
+            }
+        }
         Post updatedPost = this.postRepo.save(post);
         return this.modelMapper.map(updatedPost, PostDto.class);
     }
+
 
     
     @Override
@@ -172,7 +193,7 @@ public class PostServiceImpl implements PostService {
 
         // Only allow approval if status is PENDING
         if (post.getStatus() != Post.PostStatus.PENDING) { //pending hunai paro
-            throw new IllegalStateException("Cannot reject");
+            throw new ApiException("Cannot reject");
         }
 
         post.setStatus(Post.PostStatus.REJECTED);

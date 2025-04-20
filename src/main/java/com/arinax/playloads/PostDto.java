@@ -20,8 +20,6 @@ public class PostDto {
 	
 	private String content;
 	
-	private String imageName;
-	
 	private LocalDateTime addedDate;
 
 	private LocalDateTime startTime;
@@ -33,6 +31,8 @@ public class PostDto {
 	private GameModeDto gameMode;
 	
 	 private PostStatus status;
+	 
+	 
 	
 	//private Set<CommentDto> comments=new HashSet<>();
 

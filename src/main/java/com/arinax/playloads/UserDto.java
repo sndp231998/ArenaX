@@ -34,6 +34,7 @@ public class UserDto {
 	private String fuId;
 
 	private double balance;
+	private String otp;
 	
 	@NotEmpty
 	@Size(min = 3, max = 10, message = "Password must be min of 3 chars and max of 10 chars !!")

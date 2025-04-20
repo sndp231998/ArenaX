@@ -50,6 +50,7 @@ public class User implements UserDetails {
 
 	private double balance;
 
+
 	//@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	//private List<Post> posts = new ArrayList<>();
 

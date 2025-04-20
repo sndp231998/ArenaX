@@ -1,5 +1,7 @@
 package com.arinax.services.impl;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,8 +14,10 @@ import org.springframework.stereotype.Service;
 import com.arinax.config.AppConstants;
 import com.arinax.entities.Role;
 import com.arinax.entities.User;
+import com.arinax.exceptions.ApiException;
 import com.arinax.exceptions.ResourceNotFoundException;
 import com.arinax.playloads.UserDto;
+import com.arinax.playloads.VerificationDto;
 import com.arinax.repositories.RoleRepo;
 import com.arinax.repositories.UserRepo;
 import com.arinax.services.NotificationService;
@@ -36,8 +40,63 @@ public class UserServiceImpl implements UserService {
 	private RoleRepo roleRepo;
 	
 	@Autowired
+	private VerificationService verificationService;
+
+	@Autowired
 	private NotificationService notificationService;
 
+	private static final long OTP_VALID_DURATION = 5 * 60; // 5 min in seconds
+
+	
+	@Override
+	public UserDto registerNewUser(UserDto userDto) {
+
+		User user = this.modelMapper.map(userDto, User.class);
+
+		// OTP Verify
+	    VerificationDto verification = verificationService.getOtpDetails(userDto.getEmail());
+
+	    if (verification == null || !verification.getOtp().equals(userDto.getOtp())) {
+	        throw new ApiException("Invalid OTP or email!");
+	    }
+	    
+	    // Time validation
+	    Instant otpGeneratedTime = verification.getTimestamp();
+	    Instant now = Instant.now();
+
+	    long elapsedSeconds = Duration.between(otpGeneratedTime, now).getSeconds();
+
+	    if (elapsedSeconds > OTP_VALID_DURATION) {
+	        verificationService.removeOtp(userDto.getEmail()); // OTP expire भैसकेपछि हटाउने
+	        throw new ApiException("OTP expired! Please request a new one.");
+	    }
+	    
+	    // OTP सही भयो र time भित्र verify भयो भने हटाउने
+	    verificationService.removeOtp(userDto.getEmail());
+
+		// encoded the password
+		user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+
+		// roles
+		Role role = this.roleRepo.findById(AppConstants.NORMAL_USER)
+				.orElseThrow(() -> new RuntimeException("Role not found with id: " + AppConstants.NORMAL_USER));
+
+		user.setRoles(new HashSet<>());          // initialize
+		user.getRoles().add(role);               // one role add (NORMAL_USER)
+
+		User newUser = this.userRepo.save(user);
+		String welcomeMessage = String.format("Welcome, %s! We're excited to have you on our ArinaX. enjoy the journey ahead! "
+        		+ "Thank you for choosing us, Arinax", user.getName());
+       // sendmsg.sendMessage(user.getMobileNo(), welcomeMessage); // Assuming notificationService sends SMS
+
+		
+		 notificationService.createNotification(newUser.getId(), welcomeMessage);
+		return this.modelMapper.map(newUser, UserDto.class);
+	}
+
+	
+	
+	
 	@Override
 	public UserDto createUser(UserDto userDto) {
 		User user = this.dtoToUser(userDto);
@@ -116,36 +175,6 @@ public class UserServiceImpl implements UserService {
 		return userDto;
 	}
 
-	@Override
-	public UserDto registerNewUser(UserDto userDto) {
-
-		User user = this.modelMapper.map(userDto, User.class);
-
-		// encoded the password
-		user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-
-		// roles
-		Role role = this.roleRepo.findById(AppConstants.NORMAL_USER)
-				.orElseThrow(() -> new RuntimeException("Role not found with id: " + AppConstants.NORMAL_USER));
-
-		user.setRoles(new HashSet<>());          // initialize
-		user.getRoles().add(role);               // one role add (NORMAL_USER)
-
-		
-		//for access multi role
-//		for (Role r : user.getRoles()) {
-//		    System.out.println("Role: " + r.getName());
-//		}
-
-		User newUser = this.userRepo.save(user);
-		String welcomeMessage = String.format("Welcome, %s! We're excited to have you on our ArinaX. enjoy the journey ahead! "
-        		+ "Thank you for choosing us, Arinax", user.getName());
-       // sendmsg.sendMessage(user.getMobileNo(), welcomeMessage); // Assuming notificationService sends SMS
-
-		
-		 notificationService.createNotification(newUser.getId(), welcomeMessage);
-		return this.modelMapper.map(newUser, UserDto.class);
-	}
-
+	
 }
 
