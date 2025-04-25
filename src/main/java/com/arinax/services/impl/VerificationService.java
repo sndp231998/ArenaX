@@ -49,7 +49,7 @@ public class VerificationService {
 	        mailMessage.setTo(to);
 	        mailMessage.setSubject(subject);
 	        mailMessage.setText(message);
-	        mailMessage.setFrom("sandipchapagain797@gmail.com");
+	        mailMessage.setFrom("info@a1itinnovation.com.np");
 	        mailSender.send(mailMessage);
 	    }
 	    

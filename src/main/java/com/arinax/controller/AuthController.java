@@ -60,8 +60,7 @@ public class AuthController {
 	    return "OTP sent to your email";
 	}
 
-
-
+	 
 	@PostMapping("/login")
 	public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest request) throws Exception {
 		this.authenticate(request.getUsername(), request.getPassword());

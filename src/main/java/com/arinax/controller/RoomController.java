@@ -32,7 +32,7 @@ public class RoomController {
 	private RoomService roomService;
 
 //	create
-	@PostMapping("/user/{userId}/game/{gameId}/posts")
+	@PostMapping("/user/{userId}/game/{gameId}/rooms")
 	public ResponseEntity<RoomDto> createRoom(@RequestBody RoomDto roomDto, @PathVariable Integer userId,
 			@PathVariable Integer gameId) {
 		RoomDto createRoom = this.roomService.createRoom(roomDto, userId, gameId);

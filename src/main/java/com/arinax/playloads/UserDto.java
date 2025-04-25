@@ -3,8 +3,6 @@ package com.arinax.playloads;
 import java.util.HashSet;
 import java.util.Set;
 
-
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -32,14 +30,14 @@ public class UserDto {
 
 	private String puId;
 	private String fuId;
-
+	private String mobileNo;
 	private double balance;
 	private String otp;
+	private String u_Remark;
+
 	
 	@NotEmpty
 	@Size(min = 3, max = 10, message = "Password must be min of 3 chars and max of 10 chars !!")
-
-
 	private String password;
 	
 	private Set<RoleDto> roles = new HashSet<>();
@@ -49,7 +47,6 @@ public class UserDto {
 	public String getPassword() {
 		return this.password;
 	}
-	
 	@JsonProperty
 	public void setPassword(String password) {
 		this.password=password;

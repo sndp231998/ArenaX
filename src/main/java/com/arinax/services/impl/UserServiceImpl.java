@@ -83,7 +83,10 @@ public class UserServiceImpl implements UserService {
 
 		user.setRoles(new HashSet<>());          // initialize
 		user.getRoles().add(role);               // one role add (NORMAL_USER)
+		String generatedUsername = generateUniqueUsername(user.getEmail(), userDto.getMobileNo());
+		user.setU_Remark(generatedUsername);
 
+		user.setMobileNo(userDto.getMobileNo());
 		User newUser = this.userRepo.save(user);
 		String welcomeMessage = String.format("Welcome, %s! We're excited to have you on our ArinaX. enjoy the journey ahead! "
         		+ "Thank you for choosing us, Arinax", user.getName());
@@ -94,7 +97,22 @@ public class UserServiceImpl implements UserService {
 		return this.modelMapper.map(newUser, UserDto.class);
 	}
 
-	
+	public String generateUniqueUsername(String email, String mobileNo) {
+	    String emailPrefix = email.split("@")[0]; // e.g., "john.doe"
+	    String mobileSuffix = mobileNo.substring(mobileNo.length() - 4); // e.g., "2334"9816032025
+	    String baseUsername = emailPrefix.replaceAll("[^a-zA-Z0-9]", "").toLowerCase() + mobileSuffix;
+
+	    String finalUsername = baseUsername;
+	    int counter = 1;
+
+	    while (userRepo.existsByURemark(finalUsername)) {
+	        finalUsername = baseUsername + counter;
+	        counter++;
+	    }
+
+	    return finalUsername;
+	}
+
 	
 	
 	@Override
@@ -124,7 +142,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	
-	
+	@Override
 	public UserDto BalanceUpdate(UserDto userDto, Integer userId) {
 	    User user = userRepo.findById(userId)
 	            .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
@@ -174,6 +192,7 @@ public class UserServiceImpl implements UserService {
 		UserDto userDto = this.modelMapper.map(user, UserDto.class);
 		return userDto;
 	}
+
 
 	
 }

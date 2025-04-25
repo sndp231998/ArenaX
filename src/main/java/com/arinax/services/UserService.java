@@ -19,6 +19,12 @@ UserDto registerNewUser(UserDto user);
 	List<UserDto> getAllUsers();
 
 	void deleteUser(Integer userId);
+
+
+	UserDto BalanceUpdate(UserDto userDto, Integer userId);
+
+
+	
 	
 	
 

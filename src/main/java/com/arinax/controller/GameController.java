@@ -39,7 +39,7 @@ public class GameController {
 
 	// update
 
-	@PutMapping("/{catId}")
+	@PutMapping("/{gaId}")
 	public ResponseEntity<GameDto> updateGame(@Valid @RequestBody GameDto gameDto,
 			@PathVariable Integer catId) {
 		GameDto updatedGame = this.gameService.updateGame(gameDto, catId);

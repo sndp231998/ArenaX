@@ -20,5 +20,6 @@ public interface UserRepo extends JpaRepository<User, Integer>{
 	@Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName")
 	List<User> findAllByRoleName(@Param("roleName") String roleName);
 	
+	boolean existsByURemark(String uRemark);
 
 }
